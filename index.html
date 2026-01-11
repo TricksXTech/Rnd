@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Card Generator (Testing Only)</title>
+<style>
+body {
+    font-family: Arial, sans-serif;
+    background: #0f172a;
+    color: #fff;
+    margin: 0;
+    padding: 20px;
+}
+
+.container {
+    max-width: 900px;
+    margin: auto;
+}
+
+h1 {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.inputs {
+    display: grid;
+    grid-template-columns: repeat(auto-fit,minmax(180px,1fr));
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+input {
+    padding: 10px;
+    font-size: 15px;
+    border-radius: 6px;
+    border: none;
+}
+
+button {
+    padding: 12px;
+    background: #22c55e;
+    color: #000;
+    font-size: 15px;
+    font-weight: bold;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+button:hover {
+    opacity: 0.9;
+}
+
+.cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit,minmax(260px,1fr));
+    gap: 15px;
+}
+
+.card {
+    background: #020617;
+    border-radius: 10px;
+    padding: 15px;
+    border: 1px solid #334155;
+}
+
+.card span {
+    display: block;
+    margin: 4px 0;
+    font-size: 14px;
+}
+
+.copy-btn {
+    margin-top: 10px;
+    background: #3b82f6;
+    color: #fff;
+    width: 100%;
+}
+
+.copy-all {
+    margin: 20px 0;
+    background: #f97316;
+    width: 100%;
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Card Generator (Testing Purpose)</h1>
+
+    <div class="inputs">
+        <input type="text" id="digits" placeholder="Known digits (eg: 4 / 8 / 12)">
+        <input type="number" id="month" placeholder="Expiry Month (MM)">
+        <input type="number" id="year" placeholder="Expiry Year (YY)">
+        <input type="number" id="cvv" placeholder="CVV">
+    </div>
+
+    <button onclick="generateCards()">Generate 100 Cards</button>
+    <button class="copy-all" onclick="copyAll()">Copy All</button>
+
+    <div class="cards" id="cards"></div>
+</div>
+
+<script>
+function rand(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+function generateCardNumber(prefix) {
+    let number = prefix;
+    while (number.length < 16) {
+        number += rand(0,9);
+    }
+    return number;
+}
+
+function generateCards() {
+    const prefix = document.getElementById("digits").value.replace(/\D/g,'');
+    const inputMonth = document.getElementById("month").value;
+    const inputYear = document.getElementById("year").value;
+    const inputCvv = document.getElementById("cvv").value;
+
+    if (prefix.length >= 16) {
+        alert("Enter less than 16 digits");
+        return;
+    }
+
+    let html = "";
+
+    for (let i = 0; i < 100; i++) {
+        const card = generateCardNumber(prefix);
+        const month = inputMonth || String(rand(1,12)).padStart(2,'0');
+        const year = inputYear || rand(26,32);
+        const cvv = inputCvv || rand(100,999);
+
+        const text = `${card}|${month}|${year}|${cvv}`;
+
+        html += `
+        <div class="card">
+            <span><b>Card:</b> ${card}</span>
+            <span><b>Exp:</b> ${month}/${year}</span>
+            <span><b>CVV:</b> ${cvv}</span>
+            <button class="copy-btn" onclick="copyText('${text}')">Copy</button>
+        </div>`;
+    }
+
+    document.getElementById("cards").innerHTML = html;
+}
+
+function copyText(text) {
+    navigator.clipboard.writeText(text);
+    alert("Copied!");
+}
+
+function copyAll() {
+    let all = "";
+    document.querySelectorAll(".card").forEach(card => {
+        const spans = card.querySelectorAll("span");
+        all += spans[0].innerText.replace("Card: ","") + "|" +
+               spans[1].innerText.replace("Exp: ","").replace("/","|") + "|" +
+               spans[2].innerText.replace("CVV: ","") + "\n";
+    });
+    navigator.clipboard.writeText(all);
+    alert("All cards copied!");
+}
+</script>
+
+</body>
+</html>
